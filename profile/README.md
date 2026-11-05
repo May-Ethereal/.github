@@ -2,7 +2,7 @@
   This file renders on https://github.com/May-Ethereal as the org landing page.
 -->
 
-<h1 align="center">May Ethereal</h1>
+<h1 align="center">Ethereal</h1>
 
 <p align="center">
   <strong>A game reverse-engineering collective.</strong><br>
@@ -19,7 +19,7 @@
 
 ## About
 
-**May Ethereal** is a collective of game reverse engineers based in Japan. We
+**Ethereal** is a collective of game reverse engineers based in Japan. We
 pull apart game binaries, engines, and file formats to document how they work —
 turning closed systems into things the community can study, preserve, and build
 on.
@@ -51,7 +51,7 @@ claims are backed by disassembly, traces, and reproducible results.
 <!-- Pinned repositories render below this section on the org home.
      Add repos, then pin the flagship ones from the org profile. -->
 
-Browse our [repositories](https://github.com/orgs/May-Ethereal/repositories).
+Browse our [repositories](https://github.com/orgs/Ethereal/repositories).
 Flagship projects are pinned on the org profile.
 
 ## Scope & ethics
@@ -63,8 +63,8 @@ your jurisdiction and the terms of the software you study.
 
 ## Get involved
 
-- 📖 Read the [Contributing guide](https://github.com/May-Ethereal/.github/blob/main/CONTRIBUTING.md)
-- 🤝 Review the [Code of Conduct](https://github.com/May-Ethereal/.github/blob/main/CODE_OF_CONDUCT.md)
+- 📖 Read the [Contributing guide](https://github.com/Ethereal/.github/blob/main/CONTRIBUTING.md)
+- 🤝 Review the [Code of Conduct](https://github.com/Ethereal/.github/blob/main/CODE_OF_CONDUCT.md)
 - 🏛️ See how we're run in [Governance](https://github.com/May-Ethereal/.github/blob/main/GOVERNANCE.md)
 - 🔐 Report security issues via our [Security policy](https://github.com/May-Ethereal/.github/blob/main/SECURITY.md)
 
