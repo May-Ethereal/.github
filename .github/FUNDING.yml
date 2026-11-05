@@ -1,0 +1,4 @@
+# Enable the "Sponsor" button on org repositories.
+# Uncomment and fill the platforms you actually use; delete the rest.
+# github: [AtsuageZ, NetVar1337]
+# custom: ["https://ethereal.tokyo/"]

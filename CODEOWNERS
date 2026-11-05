@@ -1,0 +1,4 @@
+# Default owners for everything in this repository.
+# These users are requested for review on every pull request.
+# Docs: https://docs.github.com/articles/about-code-owners
+*       @AtsuageZ @NetVar1337
