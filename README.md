@@ -1,6 +1,6 @@
 # .github
 
-Organization-wide community health files and defaults for
+Organization-wide community health files, policies and defaults for
 [**May Ethereal**](https://github.com/May-Ethereal).
 
 GitHub automatically applies the files in this repository to **every** repo in
@@ -13,50 +13,84 @@ the org that does not define its own equivalent.
 | `profile/README.md` | Renders on the org profile page (`github.com/May-Ethereal`) |
 | `CODE_OF_CONDUCT.md` | Org-wide Code of Conduct (Contributor Covenant 2.1) |
 | `CONTRIBUTING.md` | Default contribution guidelines |
-| `SECURITY.md` | Vulnerability reporting policy |
+| `SECURITY.md` | Vulnerability reporting policy (org-level security policy) |
 | `SUPPORT.md` | Where to get help |
 | `GOVERNANCE.md` | Roles, owners, teams, decision making |
+| `RELEASES.md` | Versioning, signing and release policy |
+| `REPOSITORY-STANDARDS.md` | Required files, CI rules, visibility and naming rules |
 | `CODEOWNERS` | Default reviewers for this repo |
 | `.github/ISSUE_TEMPLATE/` | Bug report + feature request forms, chooser config |
 | `.github/PULL_REQUEST_TEMPLATE.md` | Default PR template |
 | `.github/FUNDING.yml` | Sponsor button config (disabled until filled) |
+| `.github/workflows/reusable-security-scan.yml` | Reusable org-wide secret and dependency scan |
+| `.github/workflows/reusable-release-sign.yml` | Reusable Sigstore keyless signing and release manifest |
 
-## Fill-in fields
+## Using the reusable workflows
 
-Search for `{{` and replace each org-specific field before publishing:
+Any repository can call them:
 
-- `profile/README.md` — tagline and About section
-- `SECURITY.md` — security contact address
-- `CODE_OF_CONDUCT.md` — conduct contact address
+```yaml
+jobs:
+  security:
+    uses: May-Ethereal/.github/.github/workflows/reusable-security-scan.yml@main
 
-## Publishing
-
-Create the repo as **public** and named exactly `.github`, then push:
-
-```bash
-cd May-Ethereal-.github
-git init -b main
-git add .
-git commit -m "chore: org community health files and profile"
-git remote add origin git@github.com:May-Ethereal/.github.git
-git push -u origin main
+  release:
+    needs: [build]
+    permissions:
+      contents: read
+      id-token: write
+    steps:
+      - uses: actions/checkout@<full-commit-sha>
+      - run: ./scripts/build-release.sh
+      - uses: May-Ethereal/.github/.github/workflows/reusable-release-sign.yml@main
+        with:
+          artifacts: 'dist/*.tar.gz'
+          upload-path: 'dist'
+          release-name: 'my-app-release-${{ github.sha }}'
 ```
 
-> The repo **must** be public and named `.github` for org-wide defaults and the
-> profile page to take effect.
+Pin the calling workflow to a commit SHA when you want it to be immutable, and
+remember that a reusable workflow inherits the caller's `permissions` unless it
+declares its own.
 
 ## Settings not covered by files
 
-These are Settings-page toggles (no file can set them); do them in
-**Org → Settings**:
+These are Settings-page toggles (no file can set them).
 
-- [ ] Require two-factor authentication for all members
-- [ ] Verify domain `ethereal.tokyo` (requires working DNS — currently the
-      domain does not resolve)
-- [ ] Enable Dependabot alerts + security updates (org default)
-- [ ] Enable secret scanning + push protection (org default)
-- [ ] Enable private vulnerability reporting (org default)
-- [ ] Add a default branch ruleset: require PR review + status checks on `main`
-- [ ] Create teams (`owners`, `maintainers`, `contributors`) with least
-      privilege
-- [ ] Set the org description
+Applied:
+
+- [x] Dependabot alerts and security updates enabled on every repository
+- [x] `vulnerability-alerts` enabled on every repository, automated security fixes on
+- [x] Teams created with least privilege: `@May-Ethereal/maintainers` (write) and
+      `@May-Ethereal/org-admins` (admin)
+- [x] Branch protection on the public repositories: required pull request,
+      required code-owner review, conversation resolution, linear history, no
+      force pushes, no branch deletion, administrators included
+- [x] Default repository permission set to read
+
+Still open, and why:
+
+- [ ] **Require two-factor authentication for all members.** The members are
+      the two org owners; this is a click on Org → Settings → Authentication.
+- [ ] **Verify the `ethereal.tokyo` domain.** Blocked until the domain
+      publishes working DNS and a mail domain; the domain does not currently
+      resolve.
+- [ ] **Enable secret scanning and push protection.** These are GitHub Advanced
+      Security features and are not available on the current plan.
+- [ ] **Branch protection on the private repositories.** GitHub Free only
+      offers branch protection for public repositories; the private repositories
+      need a plan upgrade.
+- [ ] **Enable private vulnerability reporting** on repositories where it is
+      not on by default.
+- [ ] **Add a default repository ruleset** for the org once private-repository
+      rulesets are available on the plan.
+
+## External prerequisites
+
+These cannot be completed from this repository:
+
+| Prerequisite | Why it is external |
+| --- | --- |
+| DNS records and a monitored mailbox for `ethereal.tokyo` | Needed by `SECURITY.md`, `CODE_OF_CONDUCT.md` and the website's `security.txt` |
+| GitHub plan upgrade (Team or Enterprise) | Unlocks secret scanning, push protection, private-repository branch protection and org rulesets |
+| Two-factor authentication for both owners | Org authentication settings |

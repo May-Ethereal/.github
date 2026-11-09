@@ -1,18 +1,24 @@
 # Security Policy
 
+This is the organization-wide policy for every May Ethereal repository. It is
+the policy GitHub shows on the organization's Security tab.
+
 ## Reporting a vulnerability
 
 **Do not open a public issue for security vulnerabilities.**
 
-Report privately through GitHub's
-[private vulnerability reporting](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability):
+Preferred channel — GitHub private vulnerability reporting:
 
 1. Go to the affected repository's **Security** tab.
 2. Click **Report a vulnerability**.
 3. Provide a description, reproduction steps, affected versions, and impact.
 
-If private reporting is not enabled on a repository, email
-**{{ security@ethereal.tokyo — confirm or replace with a monitored address }}**.
+Fallback channel — email **security@ethereal.tokyo**.
+
+> Operational prerequisite: `security@ethereal.tokyo` only works once the domain
+> publishes MX records and a monitored mailbox is configured behind it. Until
+> that is in place, use GitHub private vulnerability reporting, and say so
+> explicitly in the report if the address bounces.
 
 ## What to expect
 
@@ -28,6 +34,11 @@ If private reporting is not enabled on a repository, email
 - **In scope:** source code in May Ethereal repositories and released artifacts.
 - **Out of scope:** third-party dependencies (report upstream), social
   engineering, and physical attacks.
+
+## Reporting on the website
+
+The public site reports through the same channels. RFC 9116 `security.txt` is
+published at <https://ethereal.tokyo/.well-known/security.txt>.
 
 ## Safe harbor
 

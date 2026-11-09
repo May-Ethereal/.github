@@ -46,7 +46,9 @@ an individual is officially representing the community in public spaces.
 
 Instances of abusive, harassing, or otherwise unacceptable behavior may be
 reported to the community leaders responsible for enforcement at
-**{{ conduct@ethereal.tokyo — confirm or replace with a monitored address }}**.
+**conduct@ethereal.tokyo**, or privately to a maintainer
+([@AtsuageZ](https://github.com/AtsuageZ) · [@NetVar1337](https://github.com/NetVar1337))
+if email is not a suitable channel.
 All complaints will be reviewed and investigated promptly and fairly.
 
 All community leaders are obligated to respect the privacy and security of the
