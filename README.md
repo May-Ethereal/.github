@@ -25,6 +25,14 @@ the org that does not define its own equivalent.
 | `.github/workflows/reusable-security-scan.yml` | Reusable org-wide secret and dependency scan |
 | `.github/workflows/reusable-release-sign.yml` | Reusable Sigstore keyless signing and release manifest |
 
+## Repository template
+
+New repositories should be created from
+[`May-Ethereal/repo-template`](https://github.com/May-Ethereal/repo-template),
+which already contains the license, the security and contribution pointers,
+`CODEOWNERS`, a `.gitignore` and a CI workflow that runs the organization
+security scan.
+
 ## Using the reusable workflows
 
 Any repository can call them:
