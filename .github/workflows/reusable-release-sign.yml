@@ -1,0 +1,119 @@
+name: reusable-release-sign
+
+# Signs release artifacts with Sigstore keyless signing and publishes a signed
+# release manifest. Call it from a release workflow:
+#
+#   jobs:
+#     release:
+#       needs: [build]
+#       permissions:
+#         contents: read
+#         id-token: write
+#       steps:
+#         - uses: actions/checkout@…
+#         - run: ./scripts/build-release.sh
+#         - uses: May-Ethereal/.github/.github/workflows/reusable-release-sign.yml@main
+#           with:
+#             artifacts: 'dist/*.tar.gz'
+#             upload-path: 'dist'
+#             release-name: 'my-app-release-${{ github.sha }}'
+#
+# The signature is bound to the calling workflow's GitHub Actions OIDC
+# identity, so the deploy path can require an exact certificate identity.
+
+on:
+  workflow_call:
+    inputs:
+      artifacts:
+        description: 'Space-separated glob patterns of the artifacts to sign, relative to the repository root'
+        required: true
+        type: string
+      upload-path:
+        description: 'Space-separated paths that are uploaded as the release artifact (artifacts, digests and bundles)'
+        required: false
+        type: string
+        default: 'dist'
+      release-name:
+        description: 'Name of the uploaded GitHub artifact'
+        required: true
+        type: string
+      signer-identity:
+        description: 'Certificate identity recorded in the release manifest and required by the deploy path'
+        required: false
+        type: string
+        default: ''
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  sign:
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    steps:
+      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8
+        with:
+          persist-credentials: false
+
+      - uses: sigstore/cosign-installer@756fe2d284c7292c4e9b62c8a28f1e5629c59532
+        with:
+          cosign-release: 'v3.1.4'
+
+      - name: Sign the release artifacts
+        env:
+          ARTIFACT_PATTERNS: ${{ inputs.artifacts }}
+        run: |
+          set -euo pipefail
+          shopt -s nullglob
+          signed=0
+          for pattern in $ARTIFACT_PATTERNS; do
+            for artifact in $pattern; do
+              echo "signing $artifact"
+              cosign sign-blob --yes --bundle "$artifact.sigstore.json" "$artifact"
+              signed=$((signed + 1))
+            done
+          done
+          if [ "$signed" -eq 0 ]; then
+            echo "::error::no artifact matched the patterns: $ARTIFACT_PATTERNS"
+            exit 1
+          fi
+
+      - name: Publish the signed release manifest
+        env:
+          ARTIFACT_PATTERNS: ${{ inputs.artifacts }}
+          SIGNER_IDENTITY: ${{ inputs.signer-identity }}
+        run: |
+          set -euo pipefail
+          commit=$(git rev-parse HEAD)
+          identity="${SIGNER_IDENTITY:-https://github.com/${GITHUB_REPOSITORY}/.github/workflows/${GITHUB_WORKFLOW_REF##*/}@${GITHUB_REF}}"
+          python3 - "$commit" "$identity" "$ARTIFACT_PATTERNS" <<'PY' > release-manifest.json
+          import glob, hashlib, json, sys
+          commit, identity, patterns = sys.argv[1], sys.argv[2], sys.argv[3].split()
+          entries = []
+          for pattern in patterns:
+              for path in sorted(glob.glob(pattern)):
+                  entries.append({
+                      "artifact": path,
+                      "sha256": hashlib.sha256(open(path, "rb").read()).hexdigest(),
+                      "bundle": path + ".sigstore.json",
+                      "signer_identity": identity,
+                      "source_commit": commit,
+                  })
+          print(json.dumps({
+              "format": "ethereal-release-manifest-v1",
+              "source_commit": commit,
+              "signer_identity": identity,
+              "artifacts": entries,
+          }, indent=2, sort_keys=True))
+          PY
+          cosign sign-blob --yes --bundle release-manifest.json.sigstore.json release-manifest.json
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9
+        with:
+          name: ${{ inputs.release-name }}
+          path: |
+            ${{ inputs.upload-path }}
+            release-manifest.json
+            release-manifest.json.sigstore.json
+          if-no-files-found: error
